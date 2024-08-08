@@ -1,6 +1,6 @@
 from django.db import models
 
-from user.models import User
+from planetarium_api_service import settings
 
 
 class ShowTheme(models.Model):
@@ -14,6 +14,9 @@ class AstronomyShow(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField()
     show_theme = models.ManyToManyField(ShowTheme)
+
+    def __str__(self):
+        return f"{self.title} theme: {self.show_theme}"
 
 
 class PlanetariumDome(models.Model):
@@ -31,7 +34,13 @@ class PlanetariumDome(models.Model):
 
 class Reservation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.created_at
+
+    class Meta:
+        ordering = ["-created_at"]
 
 
 class ShowSession(models.Model):
