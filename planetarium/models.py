@@ -1,5 +1,7 @@
 from django.db import models
 
+from user.models import User
+
 
 class ShowTheme(models.Model):
     name = models.CharField(max_length=255)
@@ -25,3 +27,8 @@ class PlanetariumDome(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Reservation(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
