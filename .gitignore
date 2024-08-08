@@ -1,0 +1,4 @@
+.venv
+**__pyceche__/
+.idea
+db.sqlite3
