@@ -41,3 +41,6 @@ class ShowSession(models.Model):
 
     class Meta:
         ordering = ["-show_time"]
+
+    def __str__(self):
+        return f"{self.astronomy_show.title} {str(self.show_time)}"
