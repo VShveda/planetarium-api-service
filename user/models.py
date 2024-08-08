@@ -1,7 +1,9 @@
+ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.db import models
+from django.utils.translation import gettext as _
 
 
-class UserManager(models.Manager):
+class UserManager(BaseUserManager):
     """Define a model manager for User model with no username field."""
 
     user_in_migrations = True
@@ -35,3 +37,14 @@ class UserManager(models.Manager):
             raise ValueError("Superuser must have is_superuser=True.")
 
         return self._create_user(email, password, **extra_fields)
+
+
+class User(AbstractUser):
+    username = None
+    email = models.EmailField(_("email address"), unique=True)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+
+    objects = UserManager()
+
