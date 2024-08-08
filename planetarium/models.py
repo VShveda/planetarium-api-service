@@ -8,4 +8,7 @@ class ShowTheme(models.Model):
         return self.name
 
 
-
+class AstronomyShow(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    show_theme = models.ManyToManyField(ShowTheme)
