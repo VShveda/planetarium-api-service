@@ -32,3 +32,12 @@ class PlanetariumDome(models.Model):
 class Reservation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+
+class ShowSession(models.Model):
+    astronomy_show = models.ForeignKey(AstronomyShow, on_delete=models.CASCADE)
+    planetarium_dome = models.ForeignKey(PlanetariumDome, on_delete=models.CASCADE)
+    show_time = models.DateTimeField()
+
+    class Meta:
+        ordering = ["-show_time"]
