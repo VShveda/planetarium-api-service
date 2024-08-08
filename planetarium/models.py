@@ -37,7 +37,7 @@ class Reservation(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.created_at
+        return str(self.created_at)
 
     class Meta:
         ordering = ["-created_at"]
