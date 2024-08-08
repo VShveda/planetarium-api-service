@@ -44,3 +44,17 @@ class ShowSession(models.Model):
 
     def __str__(self):
         return f"{self.astronomy_show.title} {str(self.show_time)}"
+
+
+class Ticket(models.Model):
+    row = models.IntegerField()
+    seat = models.IntegerField()
+    show_session = models.ForeignKey(ShowSession, on_delete=models.CASCADE)
+    reservation = models.ForeignKey(Reservation, on_delete=models.CASCADE)
+
+    class Meta:
+        unique_together = ("show_session", "row", "seat")
+        ordering = ["row", "seat"]
+
+    def __str__(self):
+        return f"{str(self.show_session)} (row: {self.row}, seat: {self.seat})"
