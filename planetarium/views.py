@@ -1,9 +1,19 @@
 from django.shortcuts import render
 from rest_framework import mixins, viewsets
 
-from planetarium.models import ShowTheme, AstronomyShow, PlanetariumDome
 from planetarium.permissions import IsAdminOrIfAuthenticatedReadOnly
-from planetarium.serializers import ShowThemeSerializer, AstronomyShowSerializer, PlanetariumDomeSerializer
+from planetarium.models import (
+    ShowTheme,
+    AstronomyShow,
+    PlanetariumDome,
+    Reservation
+)
+from planetarium.serializers import (
+    ShowThemeSerializer,
+    AstronomyShowSerializer,
+    PlanetariumDomeSerializer,
+    ReservationSerializer
+)
 
 
 class ShowThemeViewSet(
@@ -33,4 +43,17 @@ class PlanetariumDomeViewSet(
 ):
     queryset = PlanetariumDome.objects.all()
     serializer_class = PlanetariumDomeSerializer
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+
+
+class ReservationViewSet(
+    mixins.CreateModelMixin,
+    mixins.ListModelMixin,
+    viewsets.GenericViewSet
+):
+    queryset = Reservation.objects.prefetch_related(
+        "reservation__show_session__astronomy_show__show_theme",
+        "reservation__show_session__planetarium_dome"
+    )
+    serializer_class = ReservationSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
