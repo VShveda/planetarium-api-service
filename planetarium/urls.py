@@ -17,5 +17,5 @@ router.register("reservation", ReservationViewSet)
 
 app_name = "planetarium"
 urlpatterns = [
-    path("", include(router.urls)),
+    path("", include(router.urls))
 ]
