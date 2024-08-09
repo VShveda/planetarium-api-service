@@ -1,5 +1,6 @@
 from django.shortcuts import render
-from rest_framework import mixins, viewsets
+from rest_framework import mixins, viewsets, pagination
+from rest_framework.permissions import IsAuthenticated
 
 from planetarium.permissions import IsAdminOrIfAuthenticatedReadOnly
 from planetarium.models import (
@@ -46,6 +47,10 @@ class PlanetariumDomeViewSet(
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
+class ReservationPagination(pagination.PageNumberPagination):
+    page_size = 10
+
+
 class ReservationViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
@@ -56,4 +61,5 @@ class ReservationViewSet(
         "reservation__show_session__planetarium_dome"
     )
     serializer_class = ReservationSerializer
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    permission_classes = (IsAuthenticated,)
+    pagination_class = ReservationPagination
