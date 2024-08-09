@@ -22,4 +22,7 @@ class AstronomyShowSerializer(serializers.ModelSerializer):
         fields = ("id", "title", "description", "show_theme")
 
 
-
+class PlanetariumDomeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PlanetariumDome
+        fields = ("id", "name", "rows", "seats_in_row", "capacity")
