@@ -13,7 +13,7 @@ from planetarium.serializers import (
     ShowThemeSerializer,
     AstronomyShowSerializer,
     PlanetariumDomeSerializer,
-    ReservationSerializer
+    ReservationSerializer, ReservationListSerializer
 )
 
 
@@ -63,3 +63,14 @@ class ReservationViewSet(
     serializer_class = ReservationSerializer
     permission_classes = (IsAuthenticated,)
     pagination_class = ReservationPagination
+
+    def get_queryset(self):
+        return Reservation.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return ReservationListSerializer
+        return ReservationSerializer

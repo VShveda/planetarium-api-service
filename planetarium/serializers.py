@@ -34,4 +34,8 @@ class ReservationSerializer(serializers.ModelSerializer):
         fields = ("id", "created_at", "user")
 
 
+class ReservationListSerializer(ReservationSerializer):
+    reservation = ReservationSerializer(many=True)
+
+
 
