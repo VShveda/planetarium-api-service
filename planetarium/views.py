@@ -15,7 +15,6 @@ from planetarium.models import (
     PlanetariumDome,
     Reservation,
     ShowSession,
-    Ticket
 )
 from planetarium.serializers import (
     ShowThemeSerializer,
@@ -23,7 +22,10 @@ from planetarium.serializers import (
     PlanetariumDomeSerializer,
     ReservationSerializer,
     ReservationListSerializer,
-    ShowSessionSerializer, AstronomyShowListSerializer, AstronomyShowDetailSerializer, AstronomyShowImageSerializer,
+    ShowSessionSerializer,
+    AstronomyShowListSerializer,
+    AstronomyShowDetailSerializer,
+    AstronomyShowImageSerializer,
 )
 
 
@@ -33,7 +35,7 @@ class ShowThemeViewSet(
     viewsets.GenericViewSet
 ):
     queryset = ShowTheme.objects.all()
-    serializer_class = ShowThemeSerializer
+    serializer_class = (ShowThemeSerializer,)
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
@@ -43,7 +45,7 @@ class AstronomyShowViewSet(
     viewsets.GenericViewSet
 ):
     queryset = AstronomyShow.objects.prefetch_related("show_theme")
-    serializer_class = AstronomyShowSerializer
+    serializer_class = (AstronomyShowSerializer,)
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     @staticmethod
@@ -113,7 +115,7 @@ class PlanetariumDomeViewSet(
     viewsets.GenericViewSet
 ):
     queryset = PlanetariumDome.objects.all()
-    serializer_class = PlanetariumDomeSerializer
+    serializer_class = (PlanetariumDomeSerializer,)
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
@@ -130,9 +132,9 @@ class ReservationViewSet(
         "reservation__show_session__astronomy_show__show_theme",
         "reservation__show_session__planetarium_dome"
     )
-    serializer_class = ReservationSerializer
+    serializer_class = (ReservationSerializer,)
     permission_classes = (IsAuthenticated,)
-    pagination_class = ReservationPagination
+    pagination_class = (ReservationPagination,)
 
     def get_queryset(self):
         return Reservation.objects.filter(user=self.request.user)
@@ -158,7 +160,7 @@ class ShowSessionViewSet(viewsets.ModelViewSet):
             )
         )
     )
-    serializer_class = ShowSessionSerializer
+    serializer_class = (ShowSessionSerializer,)
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_queryset(self):
