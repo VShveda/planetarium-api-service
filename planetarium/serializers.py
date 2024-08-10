@@ -35,12 +35,6 @@ class TicketSerializer(serializers.ModelSerializer):
         return data
 
 
-class TicketListSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Ticket
-        fields = ("id", "row", "seat", "show_session")
-
-
 class AstronomyShowSerializer(serializers.ModelSerializer):
     class Meta:
         model = AstronomyShow
@@ -65,6 +59,13 @@ class AstronomyShowDetailSerializer(AstronomyShowSerializer):
     class Meta:
         model = AstronomyShow
         fields = ("id", "title", "description", "show_theme", "image")
+
+
+class TicketListSerializer(serializers.ModelSerializer):
+    astronomy_show = AstronomyShowListSerializer(
+        many=False,
+        read_only=True
+    )
 
 
 class PlanetariumDomeSerializer(serializers.ModelSerializer):
