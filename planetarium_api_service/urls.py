@@ -25,4 +25,5 @@ urlpatterns = [
         "api/planetarium/",
         include("planetarium.urls", namespace="planetarium")
     ),
+    path("__debug__/", include("debug_toolbar.urls")),
 ]
