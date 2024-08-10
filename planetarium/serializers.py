@@ -59,7 +59,7 @@ class AstronomyShowListSerializer(AstronomyShowSerializer):
 
 class AstronomyShowDetailSerializer(AstronomyShowSerializer):
     show_theme = serializers.SlugRelatedField(
-        many=True, read_only=True,
+        many=True, read_only=True, slug_field="name"
     )
 
     class Meta:
