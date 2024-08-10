@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from rest_framework import serializers
 
 from planetarium.models import (
@@ -16,6 +17,30 @@ class ShowThemeSerializer(serializers.ModelSerializer):
         fields = ("id", "name")
 
 
+class ShowSessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ShowSession
+        fields = ("id", "astronomy_show", "planetarium_dome", "show_time")
+
+
+class TicketSerializer(serializers.ModelSerializer):
+    def validate(self, attrs):
+        data = super(TicketSerializer, self).validate(attrs=attrs)
+        Ticket.validate_ticket(
+            attrs["row"],
+            attrs["seat"],
+            attrs["show_session"].planetarium_dome,
+            ValidationError
+        )
+        return data
+
+
+class TicketListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = ("id", "row", "seat", "show_session")
+
+
 class AstronomyShowSerializer(serializers.ModelSerializer):
     class Meta:
         model = AstronomyShow
@@ -23,21 +48,23 @@ class AstronomyShowSerializer(serializers.ModelSerializer):
 
 
 class AstronomyShowListSerializer(AstronomyShowSerializer):
-    show_theme = ShowThemeSerializer(
+    show_theme = serializers.SlugRelatedField(
         many=True, read_only=True, slug_field="name"
     )
 
     class Meta:
         model = AstronomyShow
-        fields = ("id", "title", "show_theme")
+        fields = ("id", "title", "show_theme", "image")
 
 
 class AstronomyShowDetailSerializer(AstronomyShowSerializer):
-    show_theme = ShowThemeSerializer(many=True, read_only=True)
+    show_theme = serializers.SlugRelatedField(
+        many=True, read_only=True,
+    )
 
     class Meta:
         model = AstronomyShow
-        fields = ("id", "title", "description", "show_theme")
+        fields = ("id", "title", "description", "show_theme", "image")
 
 
 class PlanetariumDomeSerializer(serializers.ModelSerializer):
@@ -53,7 +80,4 @@ class ReservationSerializer(serializers.ModelSerializer):
 
 
 class ReservationListSerializer(ReservationSerializer):
-    reservation = ReservationSerializer(many=True)
-
-
-
+    reservation = TicketListSerializer(many=True)
