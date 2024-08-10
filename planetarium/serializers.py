@@ -61,11 +61,17 @@ class AstronomyShowDetailSerializer(AstronomyShowSerializer):
         fields = ("id", "title", "description", "show_theme", "image")
 
 
-class TicketListSerializer(serializers.ModelSerializer):
+class TicketListSerializer(TicketSerializer):
     astronomy_show = AstronomyShowListSerializer(
         many=False,
         read_only=True
     )
+
+
+class TicketSeatsSerializer(TicketSerializer):
+    class Meta:
+        model = Ticket
+        fields = ("row", "seat")
 
 
 class PlanetariumDomeSerializer(serializers.ModelSerializer):
