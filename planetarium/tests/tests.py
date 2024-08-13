@@ -81,4 +81,7 @@ class AuthenticatedAstronomicalShowTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
 
 
-
+class PlanetariumDomeModelTests(TestCase):
+    def test_capacity(self):
+        dome = PlanetariumDome.objects.create(name="Test Dome", rows=5, seats_in_row=10)
+        self.assertEqual(dome.capacity, 50)
