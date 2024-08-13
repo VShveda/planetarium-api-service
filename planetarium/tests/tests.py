@@ -153,3 +153,32 @@ class AdminAstronomyShowTests(TestCase):
         res = self.client.post(ASTRONOMY_SHOW_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
+    def test_create_astronomy_show_wihout_theme(self):
+        payload = {
+            "title": "show",
+            "description": "Sample description",
+            "show_time": "2022-01-01 00:00:00",
+        }
+        res = self.client.post(ASTRONOMY_SHOW_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_astronomy_show_without_title(self):
+        theme = ShowTheme.objects.create(name="Sample Theme")
+        payload = {
+            "description": "Sample description",
+            "show_theme": theme.id,
+            "show_time": "2022-01-01 00:00:00",
+        }
+        res = self.client.post(ASTRONOMY_SHOW_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_create_astronomy_show_without_description(self):
+        theme = ShowTheme.objects.create(name="Sample Theme")
+        payload = {
+            "title": "show",
+            "show_theme": theme.id,
+            "show_time": "2022-01-01 00:00:00",
+        }
+        res = self.client.post(ASTRONOMY_SHOW_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
+
