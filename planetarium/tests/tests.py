@@ -2,9 +2,10 @@ from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.test import APIClient
 
-from planetarium.models import AstronomyShow, ShowSession, ShowTheme, PlanetariumDome
+from planetarium.models import AstronomyShow, ShowSession, ShowTheme, PlanetariumDome, Ticket
 from planetarium.serializers import AstronomyShowListSerializer
 
 PLANETARIUM_SHOW_URL = reverse("planetarium:astronomy-show-list")
@@ -85,3 +86,18 @@ class PlanetariumDomeModelTests(TestCase):
     def test_capacity(self):
         dome = PlanetariumDome.objects.create(name="Test Dome", rows=5, seats_in_row=10)
         self.assertEqual(dome.capacity, 50)
+
+
+class TicketModelTests(TestCase):
+    def test_valid_ticket(self):
+        dome = PlanetariumDome.objects.create(name="Test Dome", rows=5, seats_in_row=10)
+        show = sample_astronomy_show()
+        session = ShowSession.objects.create(astronomy_show=show, planetarium_dome=dome, show_time="2022-01-01 00:00:00")
+        ticket = Ticket(row=1, seat=1, show_session=session, reservation=None)
+        try:
+            ticket.clean()
+        except ValidationError:
+            self.fail("Ticket.clean() raised ValidationError unexpectedly!")
+
+
+
