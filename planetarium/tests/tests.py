@@ -1,3 +1,7 @@
+import os
+import tempfile
+
+from PIL import Image
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -12,7 +16,6 @@ from planetarium.models import (
     PlanetariumDome,
     Ticket,
 )
-from planetarium.serializers import AstronomyShowSerializer
 
 ASTRONOMY_SHOW_URL = reverse("planetarium:astronomy-show-list")
 SHOW_SESSION_URL = reverse("planetarium:show-session-list")
@@ -43,9 +46,21 @@ def sample_show_session(**params):
     return ShowSession.objects.create(**defaults)
 
 
+def sample_planetarium_dome():
+    return PlanetariumDome.objects.create(
+        name="Sample Planetarium", rows=5, seats_in_row=10
+    )
+
+
 def image_upload_url(astronomy_show_id):
     return reverse(
-        "planetarium:astronomical-show-upload-image", args=[astronomy_show_id]
+        "planetarium:astronomy-show-upload-image", kwargs={"pk": astronomy_show_id}
+    )
+
+
+def detail_url(astronomy_show_id):
+    return reverse(
+        "planetarium:astronomy-show-detail", kwargs={"pk": astronomy_show_id}
     )
 
 
@@ -182,3 +197,105 @@ class AdminAstronomyShowTests(TestCase):
         res = self.client.post(ASTRONOMY_SHOW_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
+
+class AstronomyShowImageUploadTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            email="admin@example.com", password="adminpass123", is_staff=True
+        )
+        self.client.force_authenticate(self.user)
+        self.astronomy_show = sample_astronomy_show()
+        self.show_session = ShowSession.objects.create(
+            astronomy_show=self.astronomy_show,
+            planetarium_dome=sample_planetarium_dome(),
+            show_time="2022-01-01 00:00:00",
+        )
+
+    def tearDown(self):
+        self.astronomy_show.image.delete()
+
+    def test_upload_image_to_astronomy_show(self):
+        url = image_upload_url(self.astronomy_show.id)
+        with tempfile.NamedTemporaryFile(suffix=".jpg") as image:
+            img = Image.new("RGB", (10, 10))
+            img.save(image, format="JPEG")
+            image.seek(0)
+            payload = {"image": image}
+            res = self.client.post(url, payload, format="multipart")
+        self.astronomy_show.refresh_from_db()
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn("image", res.data)
+        self.assertTrue(os.path.exists(self.astronomy_show.image.path))
+
+    def test_post_image_to_astronomy_list_should_not_work(self):
+        url = ASTRONOMY_SHOW_URL
+        with tempfile.NamedTemporaryFile(suffix=".jpg") as image:
+            img = Image.new("RGB", (10, 10))
+            img.save(image, format="JPEG")
+            image.seek(0)
+            res = self.client.post(
+                url,
+                {
+                    "title": "Title",
+                    "description": "Description",
+                    "show_theme": 1,
+                    "show_time": "2022-01-01 00:00:00",
+                    "image": image,
+                },
+                format="multipart",
+            )
+
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+        astronomy_show = AstronomyShow.objects.get(title="Title")
+        self.assertFalse(astronomy_show.image)
+
+    def test_image_url_is_shown_on_astronomy_show_list(self):
+        """Test that the image URL is shown in the list view of astronomy shows"""
+        url = image_upload_url(self.astronomy_show.id)
+        with tempfile.NamedTemporaryFile(suffix=".jpg") as image:
+            img = Image.new("RGB", (10, 10))
+            img.save(image, format="JPEG")
+            image.seek(0)
+            self.client.post(url, {"image": image}, format="multipart")
+        res = self.client.get(ASTRONOMY_SHOW_URL)
+
+        self.assertIn("image", res.data[0].keys())
+
+    def test_image_url_is_shown_on_show_session_detail(self):
+        """Test that the image URL is shown in the show session detail"""
+        url = image_upload_url(self.astronomy_show.id)
+        with tempfile.NamedTemporaryFile(suffix=".jpg") as image:
+            img = Image.new("RGB", (10, 10))
+            img.save(image, format="JPEG")
+            image.seek(0)
+            self.client.post(url, {"image": image}, format="multipart")
+        res = self.client.get(SHOW_SESSION_URL)
+
+        self.assertIn("astronomy_show", res.data[0].keys())
+
+    def test_put_astronomy_show_not_allowed(self):
+        """Test that PUT requests to the astronomy show detail are not allowed"""
+        payload = {
+            "title": "Updated title",
+            "description": "Updated description",
+            "show_theme": 1,
+            "show_time": "2022-01-01 00:00:00",
+        }
+
+        astronomy_show = sample_astronomy_show()
+        url = image_upload_url(astronomy_show.id)
+
+        res = self.client.put(url, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+
+    def test_delete_astronomy_show_not_allowed(self):
+        """Test that DELETE requests to the astronomy show detail are not allowed"""
+        astronomy_show = sample_astronomy_show()
+        url = image_upload_url(astronomy_show.id)
+
+        res = self.client.delete(url)
+
+        self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
