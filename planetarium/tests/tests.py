@@ -1,6 +1,3 @@
-import os
-import tempfile
-
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -14,26 +11,23 @@ from planetarium.models import (
     ShowTheme,
     PlanetariumDome,
     Ticket,
-    Reservation,
 )
+from planetarium.serializers import AstronomyShowSerializer
 
-
-PLANETARIUM_SHOW_URL = reverse("planetarium:astronomy-show-list")
+ASTRONOMY_SHOW_URL = reverse("planetarium:astronomy-show-list")
 SHOW_SESSION_URL = reverse("planetarium:show-session-list")
 
 
 def sample_astronomy_show(**params):
-    show_theme = ShowTheme.objects.create(name="Sample theme")
+    show_theme, _ = ShowTheme.objects.get_or_create(name="Sample theme")
     defaults = {
         "title": "Sample show",
         "description": "Sample description",
-        "image": "image.png",
     }
     defaults.update(params)
 
     astronomy_show = AstronomyShow.objects.create(**defaults)
     astronomy_show.show_theme.set([show_theme])
-
     return astronomy_show
 
 
@@ -64,7 +58,7 @@ class UnauthenticatedAstronomicalShowTests(TestCase):
         self.client = APIClient()
 
     def test_unauthenticated_list(self):
-        res = self.client.get(PLANETARIUM_SHOW_URL)
+        res = self.client.get(ASTRONOMY_SHOW_URL)
         self.assertEqual(res.status_code, status.HTTP_401_UNAUTHORIZED)
 
 
@@ -79,8 +73,16 @@ class AuthenticatedAstronomicalShowTests(TestCase):
     def test_list_astronomy_shows(self):
         sample_astronomy_show()
 
-        res = self.client.get(PLANETARIUM_SHOW_URL)
+        res = self.client.get(ASTRONOMY_SHOW_URL)
         self.assertEqual(res.status_code, status.HTTP_200_OK)
+
+    def test_filter_astronomy_shows_by_title(self):
+        sample_astronomy_show(title="Sample show 1")
+        sample_astronomy_show(title="Sample show 2")
+
+        res = self.client.get(ASTRONOMY_SHOW_URL, {"title": "Sample show 1"})
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 1)
 
 
 class PlanetariumDomeModelTests(TestCase):
