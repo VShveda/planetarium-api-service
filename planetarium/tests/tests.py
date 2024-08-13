@@ -132,3 +132,24 @@ class ShowThemeViewSetTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
         self.assertEqual(ShowTheme.objects.count(), 1)
         self.assertEqual(ShowTheme.objects.get().name, "Theme 1")
+
+
+class AdminAstronomyShowTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            email="admin@example.com", password="adminpass123", is_staff=True
+        )
+        self.client.force_authenticate(self.user)
+
+    def test_create_astronomy_show(self):
+        theme = ShowTheme.objects.create(name="Sample Theme")
+        payload = {
+            "title": "show",
+            "description": "Sample description",
+            "show_theme": theme.id,
+            "show_time": "2022-01-01 00:00:00",
+        }
+        res = self.client.post(ASTRONOMY_SHOW_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_201_CREATED)
+
