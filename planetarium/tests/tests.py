@@ -49,10 +49,6 @@ def image_upload_url(astronomy_show_id):
     )
 
 
-def detail_url(astronomy_show_id):
-    return reverse("planetarium:astronomical-show-detail", args=[astronomy_show_id])
-
-
 class UnauthenticatedAstronomicalShowTests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -83,6 +79,14 @@ class AuthenticatedAstronomicalShowTests(TestCase):
         res = self.client.get(ASTRONOMY_SHOW_URL, {"title": "Sample show 1"})
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
+
+    def test_create_astronomy_show_forbidden(self):
+        payload = {
+            "title": "show",
+            "description": "Sample description",
+        }
+        res = self.client.post(ASTRONOMY_SHOW_URL, payload)
+        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
 
 class PlanetariumDomeModelTests(TestCase):
