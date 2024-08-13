@@ -100,4 +100,18 @@ class TicketModelTests(TestCase):
             self.fail("Ticket.clean() raised ValidationError unexpectedly!")
 
 
+class ShowThemeViewSetTests(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(email="admin@example.com", password="adminpass123", is_staff=True)
+        self.client.force_authenticate(self.user)
+        self.url = reverse('planetarium:show-theme-list')
+
+    def test_list_show_themes(self):
+        ShowTheme.objects.create(name="Theme 1")
+        ShowTheme.objects.create(name="Theme 2")
+
+        res = self.client.get(self.url)
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(res.data), 2)
 
