@@ -8,7 +8,7 @@ from planetarium.models import (
     PlanetariumDome,
     Reservation,
     ShowSession,
-    Ticket
+    Ticket,
 )
 
 
@@ -25,13 +25,17 @@ class ShowSessionSerializer(serializers.ModelSerializer):
 
 
 class TicketSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = ("id", "row", "seat", "show_session")
+
     def validate(self, attrs):
         data = super(TicketSerializer, self).validate(attrs=attrs)
         Ticket.validate_ticket(
             attrs["row"],
             attrs["seat"],
             attrs["show_session"].planetarium_dome,
-            ValidationError
+            ValidationError,
         )
         return data
 
@@ -69,10 +73,7 @@ class AstronomyShowDetailSerializer(AstronomyShowSerializer):
 
 
 class TicketListSerializer(TicketSerializer):
-    astronomy_show = AstronomyShowListSerializer(
-        many=False,
-        read_only=True
-    )
+    astronomy_show = AstronomyShowListSerializer(many=False, read_only=True)
 
 
 class TicketSeatsSerializer(TicketSerializer):
@@ -88,7 +89,7 @@ class PlanetariumDomeSerializer(serializers.ModelSerializer):
 
 
 class ReservationSerializer(serializers.ModelSerializer):
-    tickets = TicketSerializer(many=True, read_only=True, allow_empty=False)
+    tickets = TicketSerializer(many=True, read_only=False, allow_empty=False)
 
     class Meta:
         model = Reservation
