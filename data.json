@@ -1,0 +1,69 @@
+[
+    {
+        "model": "planetarium.showtheme",
+        "pk": 1,
+        "fields": {
+            "name": "Cosmic Exploration"
+        }
+    },
+    {
+        "model": "planetarium.showtheme",
+        "pk": 2,
+        "fields": {
+            "name": "Galactic Mysteries"
+        }
+    },
+    {
+        "model": "planetarium.showtheme",
+        "pk": 3,
+        "fields": {
+            "name": "Stellar Evolution"
+        }
+    },
+    {
+        "model": "planetarium.astronomyshow",
+        "pk": 1,
+        "fields": {
+            "title": "Journey to the Edge of the Universe",
+            "description": "Explore the outermost regions of the observable universe, witnessing cosmic events beyond imagination.",
+            "show_theme": [1, 2],
+            "image": "uploads/astronomy_shows/journey_to_the_edge_of_the_universe-123e4567-e89b-12d3-a456-426614174000.jpg"
+        }
+    },
+    {
+        "model": "planetarium.planetariumdome",
+        "pk": 1,
+        "fields": {
+            "name": "Main Dome",
+            "rows": 20,
+            "seats_in_row": 30
+        }
+    },
+    {
+        "model": "planetarium.reservation",
+        "pk": 1,
+        "fields": {
+            "created_at": "2024-08-09T10:00:00Z",
+            "user": 1
+        }
+    },
+    {
+        "model": "planetarium.showsession",
+        "pk": 1,
+        "fields": {
+            "astronomy_show": 1,
+            "planetarium_dome": 1,
+            "show_time": "2024-08-09T14:00:00Z"
+        }
+    },
+    {
+        "model": "planetarium.ticket",
+        "pk": 1,
+        "fields": {
+            "row": 5,
+            "seat": 10,
+            "show_session": 1,
+            "reservation": 1
+        }
+    }
+]
