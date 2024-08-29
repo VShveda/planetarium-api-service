@@ -1,5 +1,13 @@
 [
     {
+        "model": "user.user",
+        "pk": 1,
+        "fields": {
+            "email": "user@example.com",
+            "password": "password"
+        }
+    },
+    {
         "model": "planetarium.showtheme",
         "pk": 1,
         "fields": {
